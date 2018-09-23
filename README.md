@@ -1,13 +1,12 @@
 # Simditor extension for laravel-admin
 
 
-这是一个 `laravel-admin` 扩展，用来将 [Simditor](https://github.com/mycolorway/simditor) 集成进 `laravel-admin` 的表单中。
-
-## 截图
+This is a `laravel-admin` extension that integrates [Simditor](https://github.com/mycolorway/simditor) into the `laravel-admin` form.
+## Screenshot
 
 <img alt="simditor" src="https://user-images.githubusercontent.com/2421068/45915071-0e9c8f00-be81-11e8-94b5-8094113b71f1.png">
 
-## 安装
+## Installation
 
 ```bash
 composer require jxlwqq/simditor
@@ -15,16 +14,16 @@ composer require jxlwqq/simditor
 php artisan vendor:publish --tag=laravel-admin-simditor
 ```
 
-## 配置
+## Configuration
 
-在`config/admin.php`文件的`extensions`，加上属于这个扩展的一些配置
+In the `extensions` section of the `config/admin.php` file, add some configuration that belongs to this extension.
 ```php
 
 'extensions' => [
     'simditor' => [
-        // 如果要关掉这个扩展，设置为false
+        // Set to false if you want to disable this extension
         'enable' => true,
-        // 编辑器的配置
+        // Editor configuration
         'config' => [
             'upload' => [
                 'url' => '/admin/api/upload', # example api route: admin/api/upload
@@ -44,11 +43,11 @@ php artisan vendor:publish --tag=laravel-admin-simditor
 ]
 ```
 
-编辑器的配置可以到 [Simditor 文档](https://simditor.tower.im/docs/doc-usage.html) 找到。
+The configuration of the editor can be found in [Simditor Documentation](https://simditor.tower.im/docs/doc-usage.html).
 
-## 使用
+## Usage
 
-在 form 表单中使用它：
+Use it in the form form:
 ```php
 $form->editor('content');
 ```
