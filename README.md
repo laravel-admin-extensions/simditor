@@ -52,6 +52,10 @@ Use it in the form form:
 $form->editor('content');
 ```
 
+## More resources
+
+[Awesome Laravel-admin](https://github.com/jxlwqq/awesome-laravel-admin)
+
 License
 ------------
 Licensed under [The MIT License (MIT)](LICENSE).
