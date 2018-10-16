@@ -49,7 +49,7 @@ The configuration of the editor can be found in [Simditor Documentation](https:/
 
 Use it in the form form:
 ```php
-$form->editor('content');
+$form->simditor('content');
 ```
 
 ## More resources
