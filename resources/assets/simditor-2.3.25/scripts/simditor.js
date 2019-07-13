@@ -1,18 +1,23 @@
+/*!
+* Simditor v2.3.25
+* http://simditor.tower.im/
+* 2019-05-01
+*/
 (function (root, factory) {
   if (typeof define === 'function' && define.amd) {
     // AMD. Register as an anonymous module unless amdModuleId is set
-    define('simditor', ["jquery","simple-module","simple-hotkeys","simple-uploader"], function ($, SimpleModule, simpleHotkeys, simpleUploader) {
-      return (root['Simditor'] = factory($, SimpleModule, simpleHotkeys, simpleUploader));
+    define('simditor', ["jquery","simple-module","simple-hotkeys","simple-uploader","dompurify"], function ($, SimpleModule, simpleHotkeys, simpleUploader, DOMPurify) {
+      return (root['Simditor'] = factory($, SimpleModule, simpleHotkeys, simpleUploader, DOMPurify));
     });
   } else if (typeof exports === 'object') {
     // Node. Does not work with strict CommonJS, but
     // only CommonJS-like environments that support module.exports,
     // like Node.
-    module.exports = factory(require("jquery"),require("simple-module"),require("simple-hotkeys"),require("simple-uploader"));
+    module.exports = factory(require("jquery"),require("simple-module"),require("simple-hotkeys"),require("simple-uploader"),require("dompurify"));
   } else {
-    root['Simditor'] = factory(jQuery,SimpleModule,simple.hotkeys,simple.uploader);
+    root['Simditor'] = factory(jQuery,SimpleModule,simple.hotkeys,simple.uploader,window.DOMPurify);
   }
-}(this, function ($, SimpleModule, simpleHotkeys, simpleUploader) {
+}(this, function ($, SimpleModule, simpleHotkeys, simpleUploader, DOMPurify) {
 
 var AlignmentButton, BlockquoteButton, BoldButton, Button, Clipboard, CodeButton, CodePopover, ColorButton, FontScaleButton, Formatter, HrButton, ImageButton, ImagePopover, IndentButton, Indentation, InputManager, ItalicButton, Keystroke, LinkButton, LinkPopover, ListButton, OrderListButton, OutdentButton, Popover, Selection, Simditor, StrikethroughButton, TableButton, TitleButton, Toolbar, UnderlineButton, UndoManager, UnorderListButton, Util,
   extend = function(child, parent) { for (var key in parent) { if (hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -1611,8 +1616,8 @@ UndoManager = (function(superClass) {
       }
       if (!startContainer || !endContainer) {
         if (typeof console !== "undefined" && console !== null) {
-          if (typeof console.warn === "function") {
-            console.warn('simditor: invalid caret state');
+          if (typeof console.info === "function") {
+            console.info('simditor: invalid caret state');
           }
         }
         return;
@@ -2262,7 +2267,7 @@ Clipboard = (function(superClass) {
     }
     return this.editor.body.on('paste', (function(_this) {
       return function(e) {
-        var range;
+        var pasteBinAnchor, range;
         if (_this.pasting || _this._pasteBin) {
           return;
         }
@@ -2277,10 +2282,17 @@ Clipboard = (function(superClass) {
         } else {
           _this.editor.formatter.format();
           _this.editor.selection.setRangeAtStartOf(_this.editor.body.find('p:first'));
+          range = _this.editor.selection._range;
         }
         if (_this._processPasteByClipboardApi(e)) {
           return false;
         }
+        pasteBinAnchor = $('<span>');
+        range.insertNode(pasteBinAnchor[0]);
+        _this._createPasteBin(pasteBinAnchor);
+        pasteBinAnchor.remove();
+        range.collapse(true);
+        _this.editor.selection.range(range);
         _this.editor.inputManager.throttledValueChanged.clear();
         _this.editor.inputManager.throttledSelectionChanged.clear();
         _this.editor.undoManager.throttledPushState.clear();
@@ -2325,9 +2337,18 @@ Clipboard = (function(superClass) {
     }
   };
 
+  Clipboard.prototype._createPasteBin = function(anchorNode) {
+    var anchorOffset, editorOffset;
+    anchorOffset = anchorNode.offset();
+    editorOffset = this.editor.el.offset();
+    return this._pasteBin = $('<div contenteditable="true" />').addClass('simditor-paste-bin').attr('tabIndex', '-1').css({
+      top: anchorOffset.top - editorOffset.top,
+      left: anchorOffset.left - editorOffset.left
+    }).appendTo(this.editor.el);
+  };
+
   Clipboard.prototype._getPasteContent = function(callback) {
     var state;
-    this._pasteBin = $('<div contenteditable="true" />').addClass('simditor-paste-bin').attr('tabIndex', '-1').appendTo(this.editor.el);
     state = {
       html: this.editor.body.html(),
       caret: this.editor.undoManager.caretPosition()
@@ -2337,7 +2358,7 @@ Clipboard = (function(superClass) {
       return function() {
         var pasteContent;
         _this.editor.hidePopover();
-        _this.editor.body.get(0).innerHTML = state.html;
+        _this.editor.body.get(0).innerHTML = DOMPurify ? DOMPurify.sanitize(state.html) : state.html;
         _this.editor.undoManager.caretPosition(state.caret);
         _this.editor.body.focus();
         _this.editor.selection.reset();
@@ -2644,7 +2665,7 @@ Simditor = (function(superClass) {
   Simditor.prototype.setValue = function(val) {
     this.hidePopover();
     this.textarea.val(val);
-    this.body.get(0).innerHTML = val;
+    this.body.get(0).innerHTML = DOMPurify ? DOMPurify.sanitize(val) : val;
     this.formatter.format();
     this.formatter.decorate();
     this.util.reflow(this.body);
@@ -3152,7 +3173,7 @@ Popover = (function(superClass) {
     }
     this.el.siblings('.simditor-popover').each(function(i, popover) {
       popover = $(popover).data('popover');
-      if (popover.active) {
+      if (popover && popover.active) {
         return popover.hide();
       }
     });
@@ -4484,7 +4505,7 @@ ImageButton = (function(superClass) {
         return;
       }
       $img = $mask.data('img');
-      if (!($img.hasClass('uploading') && $img.parent().length > 0)) {
+      if (!($img && $img.hasClass('uploading') && $img.parent().length > 0)) {
         $mask.remove();
         return;
       }
@@ -4648,7 +4669,7 @@ ImageButton = (function(superClass) {
       $mask.remove();
       return $img.removeData('mask').removeClass('loading');
     };
-    return img.src = src;
+    return img.setAttribute('src', src);
   };
 
   ImageButton.prototype.createImage = function(name) {
