@@ -16,6 +16,7 @@ class Editor extends Field
         'vendor/laravel-admin-ext/simditor/simditor-2.3.25/scripts/module.js',
         'vendor/laravel-admin-ext/simditor/simditor-2.3.25/scripts/hotkeys.js',
         'vendor/laravel-admin-ext/simditor/simditor-2.3.25/scripts/uploader.js',
+        'vendor/laravel-admin-ext/simditor/simditor-2.3.25/scripts/dompurify.js',
         'vendor/laravel-admin-ext/simditor/simditor-2.3.25/scripts/simditor.js',
     ];
 
