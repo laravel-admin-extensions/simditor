@@ -25,12 +25,12 @@ class Editor extends Field
         $token = csrf_token();
         $config = json_encode((array)config('admin.extensions.simditor.config'));
         $this->script = <<<EOT
-        var config = {$config}
-        config['textarea'] = $('#{$this->id}')
-        config['upload']['params'] = {_token: '{$token}'}
-$(document).ready(function(){
-      var editor = new Simditor(config);
- });
+        $(document).ready(function(){
+              var config = {$config}
+              config['textarea'] = $('#{$this->id}')
+              config['upload']['params'] = {_token: '{$token}'}
+              var editor = new Simditor(config);
+         });
 EOT;
         return parent::render();
     }
