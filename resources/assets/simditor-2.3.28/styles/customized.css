@@ -1,0 +1,11 @@
+/*!
+* github.com/jxlwqq
+* 2020-11-20
+*/
+
+/*It prevents the used value of the width property from becoming larger than the value specified by max-width.*/
+.simditor .simditor-body img {
+    cursor: pointer;
+    max-width: 100%;
+    height: auto;
+}

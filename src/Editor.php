@@ -10,6 +10,7 @@ class Editor extends Field
 
     protected static $css = [
         'vendor/laravel-admin-ext/simditor/simditor-2.3.28/styles/simditor.css',
+        'vendor/laravel-admin-ext/simditor/simditor-2.3.28/styles/customized.css',
     ];
 
     protected static $js = [
